@@ -1,8 +1,11 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, abort
 import data
 
 app = Flask(__name__)
 
+@app.errorhandler(404)
+def render_not_found(_):
+    return 'Упс, страница не найдена:(', 404
 
 @app.route('/')
 def index():
@@ -43,10 +46,13 @@ def departure(dep):
 
 @app.route('/tour/<int:id>')
 def tour(id):
-    return render_template('tour.html', title=data.title,
-                           departures=data.departures,
-                           id=id,
-                           tours=data.tours)
+    if id in data.tours.keys():
+        return render_template('tour.html', title=data.title,
+                               departures=data.departures,
+                               id=id,
+                               tours=data.tours)
+    abort(404)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
